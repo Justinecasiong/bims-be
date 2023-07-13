@@ -1,0 +1,38 @@
+version: "2"
+
+services:
+    mysql:
+        container_name: bims-mysql
+        image: mysql:5.7
+        ports:
+            - 3306:3306
+        volumes:
+            - db-data:/var/lib/mysql
+        environment:
+            - MYSQL_DATABASE=bims
+            - MYSQL_ROOT_PASSWORD=root
+        restart: always
+
+    webserver:
+        image: nginx:alpine
+        container_name: bims-webserver
+        working_dir: /application
+        volumes:
+            - .:/application
+            - ./dev/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+        ports:
+            - "80:80"
+
+    bims-php-fpm:
+        build:
+            context: ./dev
+            dockerfile: Dockerfile
+        container_name: bims-php-fpm
+        working_dir: /application
+        volumes:
+            - .:/application
+            - ./dev/php-fpm/php-ini-overrides.ini:/etc/php/7.3/fpm/conf.d/99-overrides.ini
+
+
+volumes:
+  db-data:
