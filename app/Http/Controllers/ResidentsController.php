@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Residents;
 use App\Models\HouseholdHead;
 use App\Models\HouseholdHeadMember;
+use App\Models\MotherInformation;
 use Illuminate\Http\Request;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Hash;
@@ -257,6 +258,25 @@ class ResidentsController extends Controller
         $sinoTotal =  $dominant;
         array_push($populationData, $pfizerTotal, $modernaTotal,  $astraTotal,  $johnTotal, $sinoTotal, $age, $lgbtq);
         return response()->json($populationData);
+    }
+
+    public function countPopulationChart(Request $request)
+    {
+        $populationData = [];
+        $household_heads = HouseholdHead::count();
+        $oosy_counts = HouseholdHead::where('oosy', 'Yes')->count() + HouseholdHeadMember::where('oosy', 'Yes')->count();
+        $ps_counts = MotherInformation::where('nhts', '4ps')->count();
+        $mcct_counts = MotherInformation::where('nhts', 'MCCT')->count();
+        $senior =  HouseholdHead::where('senior_citizen', 'Yes')->count() + HouseholdHeadMember::where('senior_citizen', 'Yes')->count();
+
+
+        return response()->json([
+            'household_heads' => $household_heads,
+            'oosy_counts'     => $oosy_counts,
+            'ps_counts'       => $ps_counts,
+            'mcct_counts'     => $mcct_counts,
+            'senior'          => $senior,
+        ]);
     }
 
     public function updateProfile(Request $request)

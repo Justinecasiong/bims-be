@@ -83,6 +83,7 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('educational-attainment', [ResidentsController::class, 'getEducationalAttainment']);
     Route::get('occupations', [ResidentsController::class, 'getOccupations']);
     Route::get('get-population-by-year', [ResidentsController::class, 'getPopulationByYear']);
+    Route::get('get-population-by-types', [ResidentsController::class, 'countPopulationChart']);
 
     Route::post('certification-request', [CertificationRequestController::class, 'updateCertificates']);
 
