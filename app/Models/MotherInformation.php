@@ -12,4 +12,9 @@ class MotherInformation extends Model
     {
         return $this->belongsTo(HouseholdHeadMember::class, 'household_head_member_id', 'id');
     }
+
+    public function householdHead()
+    {
+        return $this->belongsTo(HouseholdHead::class, 'household_head_id', 'id');
+    }
 }

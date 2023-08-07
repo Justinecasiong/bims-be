@@ -11,9 +11,12 @@ class CertificationRequestController extends Controller
     public function index(Request $request)
     {
         $search = $request->search;
-        $certification_request = CertificationRequest::where(function ($query) use ($search) {
-            if ($search) {
-                $query->where('id', 'like', "%$search%");
+        $certification_request = CertificationRequest::where(function ($query) use ($request) {
+            if ($request->search) {
+                $query->where('id', 'like', "%$request->search%");
+            }
+            if ($request->status) {
+                $query->where('status', $request->status);
             }
         })->with("certification")
             ->with("resident")->paginate(10);

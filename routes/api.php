@@ -81,6 +81,8 @@ Route::group(['middleware' => 'api'], function () {
     Route::get('total-revenue-month', [RevenueController::class, 'getTotalRevenueByMonth']);
     Route::get('age-structure', [ResidentsController::class, 'getAgeStructure']);
     Route::get('educational-attainment', [ResidentsController::class, 'getEducationalAttainment']);
+    Route::get('occupations', [ResidentsController::class, 'getOccupations']);
+    Route::get('get-population-by-year', [ResidentsController::class, 'getPopulationByYear']);
 
     Route::post('certification-request', [CertificationRequestController::class, 'updateCertificates']);
 
@@ -105,6 +107,8 @@ Route::group(['middleware' => 'api'], function () {
     Route::put('update-household-head-record/{id}', [HouseholdsController::class, 'updateHouseholdHeadRecord']);
     Route::put('update-household-member-record/{id}', [HouseholdsController::class, 'updateHouseholdMemberRecord']);
     Route::post('delete-household-member-record/{id}', [HouseholdsController::class, 'deleteHouseholdMemberRecord']);
+    Route::post('get-resident-id-from-member', [HouseholdsController::class, 'getResidentIdFromMember']);
+    Route::post('add-household-member-mother', [HouseholdsController::class, 'addAsMother']);
 
     Route::get('business-est-records', [BusinessEstablishmentController::class, 'businessEstablishments']);
     Route::post('new-business-est-record', [BusinessEstablishmentController::class, 'newBusinessEstablishment']);

@@ -24,8 +24,8 @@ class HouseholdsRequest extends FormRequest
     public function rules()
     {
         return [
-            'zone_id' => 'required',
-            'total_no' => 'required',
+            'residency' => 'required',
+            'residency_end' => 'nullable|gt:residency',
         ];
     }
 }

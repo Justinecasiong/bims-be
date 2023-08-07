@@ -169,6 +169,30 @@ class ResidentsController extends Controller
         return response()->json(Residents::count());
     }
 
+    public function getPopulationByYear(Request $request)
+    {
+        $response = [];
+        $years = [
+            "2023",
+            "2022",
+            "2021",
+            "2020",
+            "2019",
+        ];
+
+        foreach($years as $year){
+            $array_key = strtolower(str_replace([" ","/","-"], "_", $year));
+            $response[$array_key] = HouseholdHead::where('residency', '<=', $year)
+            ->where(function ($query) use ($year) {
+                $query->where('residency_end', '>=', $year)->orWhere('residency_end', null);
+            })->count() + HouseholdHeadMember::where('residency', '<=', $year)
+            ->where(function ($query) use ($year) {
+                $query->where('residency_end', '>=', $year)->orWhere('residency_end', null);
+            })->count();
+        }
+        return response()->json($response);
+    }
+
     public function getAgeStructure(Request $request)
     {
         $young_dependents = Residents::where('age','<=', 14)->count();
@@ -185,6 +209,31 @@ class ResidentsController extends Controller
         foreach($educational_attainments as $education){
             $array_key = strtolower(str_replace(" ", "_", $education));
             $response[$array_key] = HouseholdHead::where('education',$education)->count() + HouseholdHeadMember::where('education',$education)->count();
+        }
+        return response()->json($response);
+    }
+
+    public function getOccupations(Request $request)
+    {
+        $response = [];
+        $occupations = [
+            "Government Employee",
+            "Private Employee",
+            "Barangay Employee",
+            "Barangay Volunteers",
+            "OFW",
+            "Business",
+            "Carpenter",
+            "Laborer/Construction",
+            "Driver",
+            "Sari-sari Store",
+            "Helper",
+            "Self-Employed",
+        ];
+
+        foreach($occupations as $occupation){
+            $array_key = strtolower(str_replace([" ","/","-"], "_", $occupation));
+            $response[$array_key] = HouseholdHead::where('occupation',$occupation)->count() + HouseholdHeadMember::where('occupation',$occupation)->count();
         }
         return response()->json($response);
     }

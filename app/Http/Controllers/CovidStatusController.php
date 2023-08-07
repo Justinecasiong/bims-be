@@ -36,6 +36,7 @@ class CovidStatusController extends Controller
         $covid = CovidStatus::find($request->id);
         $covid->update($request->except('remember_token'));
         $users = User::where('remember_token', $request->remember_token)->first();
+        
         Logs::create([
             'user_id' => $users->id,
             'user' => $users->name,

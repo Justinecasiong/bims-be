@@ -16,6 +16,7 @@ use App\Models\ChildInformation;
 use App\Models\MotherInformation;
 use App\Models\Residents;
 use App\Models\CovidStatus;
+use Carbon\Carbon;
 
 class HouseholdsController extends Controller
 {
@@ -26,7 +27,10 @@ class HouseholdsController extends Controller
     // householdHeads
     public function index(Request $request)
     {
-        return response()->json(HouseholdHead::search($request->search)->with(["zones", "familyMembers"])->paginate(10), 200);
+        return response()->json(
+            HouseholdHead::search($request->search)
+            ->with(["zones", "familyMembers"])
+            ->paginate(10), 200);
     }
 
     public function householdHead(Request $request)
@@ -51,10 +55,10 @@ class HouseholdsController extends Controller
 
     public function motherInformations()
     {
-        return response()->json(MotherInformation::with("household")->paginate(10), 200);
+        return response()->json(MotherInformation::with(["household", "householdHead"])->paginate(10), 200);
     }
 
-    public function store(Request $request)
+    public function store(HouseholdsRequest $request)
     {
         $users = User::where('remember_token', $request->remember_token)->first();
         Logs::create([
@@ -63,14 +67,17 @@ class HouseholdsController extends Controller
             'action' => 'Added a household head.'
         ]);
         $householdHead = HouseholdHead::create($request->except('remember_token'));
-        $this->createUser($request, $householdHead);
+        $resident_id = $this->createUser($householdHead);
+        $householdHead->update(['resident_id' => $resident_id]);
         Environment::create([
             'household_head_id' => $householdHead->id
         ]);
         return response()->json(200);
     }
+
+
     
-    public function newHouseholdMember(Request $request)
+    public function newHouseholdMember(HouseholdsRequest $request)
     {
         $users = User::where('remember_token', $request->remember_token)->first();
         Logs::create([
@@ -80,21 +87,32 @@ class HouseholdsController extends Controller
         ]);
         
         $householdMember = HouseholdHeadMember::create($request->except('remember_token'));
-        $this->createUser($request, $householdMember);
-        if($householdMember->age <= 7){
+        $resident_id = $this->createUser($householdMember);
+        $householdMember->update(['resident_id' => $resident_id]);
+        $age = Carbon::parse($householdMember->birthdate)->age;
+        if($age <= 7){
             ChildInformation::create([
-                'household_head_member_id' => $householdMember->id
-            ]);
-        }
-        if($householdMember->age >= 15 && $householdMember->age <= 49){
-            MotherInformation::create([
                 'household_head_member_id' => $householdMember->id
             ]);
         }
         return response()->json(200);
     }
 
-    public function updateHouseholdHeadRecord(Request $request, $id)
+    public function addAsMother(Request $request)
+    {
+        
+        $id_field = $request->is_head ? 'household_head_id' : 'household_head_member_id';
+        $mother = MotherInformation::firstOrCreate([
+            $id_field => $request->id
+        ]);
+        if($mother){
+            return response()->json(200);
+        }
+        return response()->json(422);
+
+    }
+
+    public function updateHouseholdHeadRecord(HouseholdsRequest $request, $id)
     {
         $users = User::where('remember_token', $request->remember_token)->first();
         Logs::create([
@@ -107,7 +125,7 @@ class HouseholdsController extends Controller
         return response()->json($household, 200);
     }
 
-    public function updateHouseholdMemberRecord(Request $request, $id)
+    public function updateHouseholdMemberRecord(HouseholdsRequest $request, $id)
     {
         $users = User::where('remember_token', $request->remember_token)->first();
         Logs::create([
@@ -144,6 +162,21 @@ class HouseholdsController extends Controller
         $record = ChildInformation::find($id);
         $record->update($request->except(['remember_token', 'household_head_member_id']));
         return response()->json($record, 200);
+    }
+
+    public function getResidentIdFromMember(Request $request)
+    {
+
+        $data = $request->is_head ? HouseholdHead::find($request->id) : HouseholdHeadMember::find($request->id);
+        $resident = Residents::where('zone_id', $data->zone_id)
+            ->where('first_name', $data->first_name)
+            ->where('middle_name', $data->middle_name)
+            ->where('last_name', $data->last_name)
+            ->where('birthdate', $data->birthdate)
+            ->first();
+        
+        $data->update(['resident_id' => $resident ? $resident->id : $this->createUser($data)]);
+        return response()->json($data, 200);
     }
 
     public function updateMotherInformation(Request $request, $id)
@@ -185,7 +218,7 @@ class HouseholdsController extends Controller
         return response()->json(Households::destroy($id), 200);
     }
 
-    private function createUser($request, $member)
+    private function createUser($member)
     {
         $resident = $this->createResidentFromMember($member);
 
@@ -197,15 +230,16 @@ class HouseholdsController extends Controller
         $covid->reason = "None";
         $covid->save();
 
-        $fullname = $request->first_name.' '.$request->middle_name.' '.$request->last_name;
+        $fullname = $member->first_name.' '.$member->middle_name.' '.$member->last_name;
         $user = new User;
         $user->name = str_replace(' ', '', $fullname);
         $user->password = Hash::make(str_replace(' ', '', $fullname));
-        $user->email = str_replace(' ', '', $fullname) . '' . str_replace('-', '', $request->birthdate) . '' . "@gmail.com";
+        $user->email = str_replace(' ', '', $fullname) . '' . str_replace('-', '', $member->birthdate) . '' . "@gmail.com";
         $user->permission = 'resident';
         $user->remember_token = $resident->remember_token;
         $user->save();
 
+        return $resident->id;
     }
 
     private function createResidentFromMember($member)

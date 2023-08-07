@@ -44,11 +44,13 @@ class RevenueController extends Controller
         $barangay_clearance = $revenue->where('details', 'Barangay Clearance')->sum('amount');
         $barangay_certificate =  $revenue->where('details',  '==', 'Barangay Certificate')->sum('amount');
         $business_certificate = $revenue->where('details', 'Business Permit')->sum('amount');
+        $summon_letter = $revenue->where('details', 'Summon Letter')->sum('amount');
         return response()->json([
             'revenue' => $revenue,
             'barangay_clearance' =>  $barangay_clearance,
             'barangay_certificate' =>  $barangay_certificate,
-            'business_certificate' =>  $business_certificate
+            'business_certificate' =>  $business_certificate,
+            'summon_letter' =>  $summon_letter
         ], 200);
     }
 
@@ -77,10 +79,12 @@ class RevenueController extends Controller
             $barangay_clearance = $months[$count]->where('details', 'Barangay Clearance')->sum('amount');
             $barangay_certificate =  $months[$count]->where('details',  '==', 'Barangay Certificate')->sum('amount');
             $business_certificate = $months[$count]->where('details', 'Business Permit')->sum('amount');
+            $summon_letter = $months[$count]->where('details', 'Summon Letter')->sum('amount');
             $array[$count] =  [
                 'barangay_clearance' =>  $barangay_clearance,
                 'barangay_certificate' =>  $barangay_certificate,
-                'business_certificate' =>  $business_certificate
+                'business_certificate' =>  $business_certificate,
+                'summon_letter' =>  $summon_letter
             ];
             $count++;
         }
