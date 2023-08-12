@@ -14,17 +14,37 @@ class RevenueController extends Controller
 {
     public function getRevenue(Request $request)
     {
-        $startDate = Carbon::createFromFormat('Y-m-d', $request->startDate)->startOfDay();
-        $endDate = Carbon::createFromFormat('Y-m-d', $request->endDate)->endOfDay();
+        $startDate = $request->startDate ? Carbon::createFromFormat('Y-m-d', $request->startDate)->startOfDay() : '';
+        $endDate = $request->endDate ?  Carbon::createFromFormat('Y-m-d', $request->endDate)->endOfDay() : '';
         $revenue = Revenue::with('residents')
-            ->whereBetween('date', [$startDate, $endDate])
-            ->paginate(10);
+            ->where(function ($query) use($startDate, $endDate) {
+                if($startDate ){
+                    $query->whereDate('date', ">=", $startDate);
+                }
+                if($endDate){
+                    $query->where('date', "<=", $endDate);
+                }
+            })
+            ->orderBy('created_at', 'DESC')->paginate(10);
         return response()->json($revenue, 200);
     }
 
-    public function index()
+    public function index(Request $request  )
     {
-        return response()->json(Revenue::with('residents')->paginate(10), 200);
+        $startDate = $request->startDate ? Carbon::createFromFormat('Y-m-d', $request->startDate)->startOfDay() : '';
+        $endDate = $request->endDate ?  Carbon::createFromFormat('Y-m-d', $request->endDate)->endOfDay() : '';
+        return response()->json(
+            Revenue::with('residents')
+            ->where(function ($query) use($startDate, $endDate) {
+                if($startDate ){
+                    $query->whereDate('date', ">=", $startDate);
+                }
+                if($endDate){
+                    $query->where('date', "<=", $endDate);
+                }
+            })
+            ->orderBy('created_at', 'DESC')
+            ->get(), 200);
     }
 
     public function store(RevenueRequest $request)

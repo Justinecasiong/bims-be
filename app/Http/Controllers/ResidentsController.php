@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Logs;
-
+use Carbon\Carbon;
 
 class ResidentsController extends Controller
 {
@@ -196,9 +196,12 @@ class ResidentsController extends Controller
 
     public function getAgeStructure(Request $request)
     {
-        $young_dependents = Residents::where('age','<=', 14)->count();
-        $working_populations = Residents::whereBetween('age', [15, 64])->count();
-        $old_dependents = Residents::where('age', '>=', 65)->count();
+
+        $young_depent_max_years = Carbon::now()->subYears(15)->format('Y-m-d');
+        $old_depent_min_years = Carbon::now()->subYears(65)->format('Y-m-d');
+        $young_dependents = HouseholdHead::whereDate('birthdate','>', $young_depent_max_years)->count() +  HouseholdHeadMember::whereDate('birthdate','>', $young_depent_max_years)->count();
+        $working_populations = HouseholdHead::whereBetween('birthdate', [$old_depent_min_years , $young_depent_max_years])->count() +  HouseholdHeadMember::whereBetween('birthdate', [$old_depent_min_years , $young_depent_max_years])->count();
+        $old_dependents = HouseholdHead::whereDate('birthdate', '<', $old_depent_min_years )->count() +  HouseholdHeadMember::whereDate('birthdate', '<', $old_depent_min_years )->count();
         return response()->json([ 'young_dependents' => $young_dependents, 'working_population' => $working_populations, 'old_dependents' => $old_dependents]);
     }
 
