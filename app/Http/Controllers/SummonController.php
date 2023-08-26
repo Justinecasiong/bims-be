@@ -11,7 +11,7 @@ class SummonController extends Controller
 {
     public function summonRecords()
     {
-        return response()->json(SummonRecord::paginate(10), 200);
+        return response()->json(SummonRecord::orderBy('created_at', 'DESC')->paginate(10), 200);
     }
 
     public function newSummonRecord(Request $request)

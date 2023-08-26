@@ -233,6 +233,8 @@ class ResidentsController extends Controller
             "Sari-sari Store",
             "Helper",
             "Self-Employed",
+            "Student",
+            "None",
         ];
 
         foreach($occupations as $occupation){
@@ -246,8 +248,6 @@ class ResidentsController extends Controller
     {
         $populationData = [];
         $resident = Residents::count();
-        $male = Residents::where('sex', 'Male')->count();
-        $female = Residents::where('sex', 'Female')->count();
         $pwd = Residents::where('pwd_status', 'Yes')->count();
         $senior = Residents::whereBetween('age', [60, 100])->count();
         $age = Residents::max('age');
@@ -268,6 +268,8 @@ class ResidentsController extends Controller
         $populationData = [];
         $household_heads = HouseholdHead::count();
         $oosy_counts = HouseholdHead::where('oosy', 'Yes')->count() + HouseholdHeadMember::where('oosy', 'Yes')->count();
+        $male_counts = HouseholdHead::where('sex', 'Male')->count() + HouseholdHeadMember::where('sex', 'Male')->count();
+        $female_counts = HouseholdHead::where('sex', 'Female')->count() + HouseholdHeadMember::where('sex', 'Female')->count();
         $ps_counts = MotherInformation::where('nhts', '4ps')->count();
         $mcct_counts = MotherInformation::where('nhts', 'MCCT')->count();
         $senior =  HouseholdHead::where('senior_citizen', 'Yes')->count() + HouseholdHeadMember::where('senior_citizen', 'Yes')->count();
@@ -279,6 +281,8 @@ class ResidentsController extends Controller
             'ps_counts'       => $ps_counts,
             'mcct_counts'     => $mcct_counts,
             'senior'          => $senior,
+            'female_counts'     => $female_counts,
+            'male_counts'     => $male_counts,
         ]);
     }
 

@@ -50,6 +50,7 @@ class CertificationRequestController extends Controller
             ->where('status', '!=', 'Rejected')
             ->where('status', '!=', 'Completed')
             ->with("certification")
+            ->orderBy("created_at", "Desc")
             ->paginate(10);
         return response()->json($certification_request, 200);
     }
