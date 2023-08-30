@@ -191,6 +191,11 @@ class ResidentsController extends Controller
                 $query->where('residency_end', '>=', $year)->orWhere('residency_end', null);
             })->count();
         }
+
+        //count all population despite 'residency_end' field for 2023 year. 
+        $response['2023'] = HouseholdHead::count() + HouseholdHeadMember::count();
+
+
         return response()->json($response);
     }
 
