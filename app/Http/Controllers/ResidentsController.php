@@ -192,7 +192,7 @@ class ResidentsController extends Controller
             })->count();
         }
 
-        //count all population despite 'residency_end' field for 2023 year. 
+        //count all population despite 'residency_end' field for 2023 yearx. 
         $response['2023'] = HouseholdHead::count() + HouseholdHeadMember::count();
 
 

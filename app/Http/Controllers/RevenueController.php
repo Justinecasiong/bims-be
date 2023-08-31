@@ -25,7 +25,7 @@ class RevenueController extends Controller
                     $query->where('date', "<=", $endDate);
                 }
             })
-            ->orderBy('created_at', 'DESC')->paginate(10);
+            ->orderBy('created_at', 'ASC')->paginate(10);
         return response()->json($revenue, 200);
     }
 
@@ -43,7 +43,7 @@ class RevenueController extends Controller
                     $query->where('date', "<=", $endDate);
                 }
             })
-            ->orderBy('created_at', 'DESC')
+            ->orderBy('created_at', 'ASC')
             ->get(), 200);
     }
 

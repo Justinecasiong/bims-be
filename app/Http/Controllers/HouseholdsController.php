@@ -30,17 +30,18 @@ class HouseholdsController extends Controller
         return response()->json(
             HouseholdHead::search($request->search)
             ->with(["zones", "familyMembers"])
+            ->orderBy('created_at', 'asc')
             ->paginate(10), 200);
     }
 
     public function householdHead(Request $request)
     {
-        return response()->json(HouseholdHead::search($request->search)->with(["zones"])->get(), 200);
+        return response()->json(HouseholdHead::search($request->search)->with(["zones"])->orderBy('created_at', 'asc')->get(), 200);
     }
 
     public function householdMembers(Request $request)
     {
-        return response()->json(HouseholdHeadMember::search($request->search)->with(["zones"])->get(), 200);
+        return response()->json(HouseholdHeadMember::search($request->search)->with(["zones"])->orderBy('created_at', 'asc')->get(), 200);
     }
     
     public function householdEnvs()
