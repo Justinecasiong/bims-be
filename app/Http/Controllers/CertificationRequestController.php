@@ -13,7 +13,7 @@ class CertificationRequestController extends Controller
         $search = $request->search;
         $certification_request = CertificationRequest::where(function ($query) use ($request) {
             if ($request->search) {
-                $query->where('id', 'like', "%$request->search%");
+                $query->where('id', $request->search);
             }
             if ($request->status) {
                 $query->where('status', $request->status);
