@@ -70,6 +70,9 @@ class HouseholdsController extends Controller
         $householdHead = HouseholdHead::create($request->except('remember_token'));
         $resident_id = $this->createUser($householdHead);
         $householdHead->update(['resident_id' => $resident_id]);
+        if($request->relationship == 'Mother'){
+            $this->addAsMotherDirect('household_head_id',  $householdHead->id);
+        }
         Environment::create([
             'household_head_id' => $householdHead->id
         ]);
@@ -90,6 +93,9 @@ class HouseholdsController extends Controller
         $householdMember = HouseholdHeadMember::create($request->except('remember_token'));
         $resident_id = $this->createUser($householdMember);
         $householdMember->update(['resident_id' => $resident_id]);
+        if($request->relationship == 'Mother'){
+            $this->addAsMotherDirect('household_head_member_id',  $householdMember->id);
+        }
         $age = Carbon::parse($householdMember->birthdate)->age;
         if($age <= 7){
             ChildInformation::create([
@@ -97,6 +103,14 @@ class HouseholdsController extends Controller
             ]);
         }
         return response()->json(200);
+    }
+
+    private function addAsMotherDirect($id_field, $id)
+    {
+        $mother = MotherInformation::firstOrCreate([
+            $id_field => $id
+        ]);
+
     }
 
     public function addAsMother(Request $request)
@@ -123,6 +137,9 @@ class HouseholdsController extends Controller
         ]);
         $household = HouseholdHead::find($id);
         $household->update($request->except('remember_token'));
+        if($request->relationship == 'Mother'){
+            $this->addAsMotherDirect('household_head_id',  $household->id);
+        }
         return response()->json($household, 200);
     }
 
@@ -136,6 +153,9 @@ class HouseholdsController extends Controller
         ]);
         $household = HouseholdHeadMember::find($id);
         $household->update($request->except(['remember_token', 'household_head_id']));
+        if($request->relationship == 'Mother'){
+            $this->addAsMotherDirect('household_head_member_id',  $household->id);
+        }
         return response()->json($household, 200);
     }
 
