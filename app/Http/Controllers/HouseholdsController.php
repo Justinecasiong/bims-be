@@ -73,7 +73,7 @@ class HouseholdsController extends Controller
         if($request->relationship == 'Mother'){
             $this->addAsMotherDirect('household_head_id',  $householdHead->id);
         }
-        Environment::create([
+        Environment::firstOrCreate([
             'household_head_id' => $householdHead->id
         ]);
         return response()->json(200);
