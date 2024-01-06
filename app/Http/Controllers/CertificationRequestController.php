@@ -47,7 +47,6 @@ class CertificationRequestController extends Controller
                 $query->where('resident_id', 'like', "%$request->resident_id%");
             }
         })
-            ->where('status', '!=', 'Rejected')
             ->where('status', '!=', 'Completed')
             ->with("certification")
             ->orderBy("created_at", "Desc")
@@ -58,7 +57,7 @@ class CertificationRequestController extends Controller
     public function updateCertificates(Request $request)
     {
         $certification_request = CertificationRequest::find($request->id);
-        $certification_request->update(['status' => $request->status]);
+        $certification_request->update(['status' => $request->status , 'reason' => $request->reason || null]);
         $this->createRevenue($request);
         return response()->json($certification_request, 200);
     }

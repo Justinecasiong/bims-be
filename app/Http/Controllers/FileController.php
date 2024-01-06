@@ -7,20 +7,27 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use App\Models\User;
 use App\Models\Logs;
+use App\Models\ReportType;
 
 class FileController extends Controller
 {
     public function index(Request $request)
     {
         $search = $request->search;
-        $report = File::where('official_id', $request->id)->where(function ($query) use ($search) {
+        $report = File::where('report_type_id', $request->id)->where(function ($query) use ($search) {
             if ($search) {
                 $query->where('file_name', 'like', "%$search%");
             }
-        })->paginate(10);
+        })->with('barangay_official')->paginate(10);
 
         return response()->json($report, 200);
     }
+
+    public function findReportType(Request $request)
+    {
+        return ReportType::where('id', $request->id)->first();
+    }
+
 
     public function reportType(Request $request)
     {
@@ -44,7 +51,8 @@ class FileController extends Controller
 
         $file = new File();
         $file->file_name = $fileName;
-        $file->official_id = $request->official_id;
+        $file->official_id = $request->user()->id;
+        $file->report_type_id = $request->report_type_id;
         $file->report_type = $request->report_type;
         $file->save();
 
@@ -61,6 +69,24 @@ class FileController extends Controller
     public function download(Request $request)
     {
         return Response::download(public_path('upload/' . $request->fileName));
+    }
+
+    public function getReportTypes(Request $request)
+    {
+        return ReportType::all();
+    }
+
+    public function addReportType(Request $request)
+    {
+        return ReportType::create(['name' => $request->name]);
+    }
+
+    public function removeReportType(Request $request)
+    {
+        if(!File::where('report_type_id', $request->report_id)->exists()){
+            return ReportType::where('id', $request->report_id)->delete();
+        }
+        return response()->json(['message' => 'Cannot Be Remove! There are reports under this report type'], 422);
     }
 
     public function destroy($id, Request $request)

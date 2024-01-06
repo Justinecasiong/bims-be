@@ -92,6 +92,12 @@ Route::group(['middleware' => 'api'], function () {
     Route::post('updateStatus', [UserController::class, 'updateStatus']);
     Route::get('getOfficials', [BarangayOfficialsController::class, 'getOfficials']);
 
+    Route::post('add-report-type', [FileController::class, 'addReportType']);
+    Route::post('remove-report-type', [FileController::class, 'removeReportType']);
+    Route::get('get-all-report-type', [FileController::class, 'getReportTypes']);
+
+    Route::post('get-report-type', [FileController::class, 'findReportType']);
+
     Route::post('formSubmit', [FileController::class, 'formSubmit']);
     Route::get('report-type', [FileController::class, 'reportType']);
     Route::get('download', [FileController::class, 'download']);
