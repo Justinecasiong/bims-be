@@ -8,15 +8,22 @@ use Illuminate\Support\Facades\Response;
 use App\Models\User;
 use App\Models\Logs;
 use App\Models\ReportType;
+use App\Models\BarangayOfficials;
 
 class FileController extends Controller
 {
+    private const CHAIRPERSON = 'Chairperson';
+
     public function index(Request $request)
     {
+        $brgy_official = BarangayOfficials::where('remember_token', $request->remember_token)->with('position')->first();
         $search = $request->search;
-        $report = File::where('report_type_id', $request->id)->where(function ($query) use ($search) {
+        $report = File::where('report_type_id', $request->id)->where(function ($query) use ($brgy_official, $search) {
             if ($search) {
                 $query->where('file_name', 'like', "%$search%");
+            }
+            if($brgy_official->position->position_description != self::CHAIRPERSON){
+                $query->where('official_id', $brgy_official->id);
             }
         })->with('barangay_official')->paginate(10);
 
@@ -48,14 +55,14 @@ class FileController extends Controller
     {
         $fileName = $request->file->getClientOriginalName();
         $request->file->move(public_path('upload'), $fileName);
+        $brgy_official = BarangayOfficials::where('remember_token', $request->remember_token)->first();
 
         $file = new File();
         $file->file_name = $fileName;
-        $file->official_id = $request->user()->id;
+        $file->official_id = $brgy_official->id;
         $file->report_type_id = $request->report_type_id;
         $file->report_type = $request->report_type;
         $file->save();
-
         $users = User::where('remember_token', $request->remember_token)->first();
         Logs::create([
             'user_id' => $users->id,
