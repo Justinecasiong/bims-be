@@ -11,9 +11,8 @@ class DatabaseSeeder extends Seeder
             PositionSeeder::class,
             ChairmanshipSeeder::class,
             BarangayInformationSeeder::class,
-            UserSeeder::class,
             CertificationSeeder::class,
-            ResidentSeeder::class
+            UserSeeder::class,
         ]);
     }
 }
