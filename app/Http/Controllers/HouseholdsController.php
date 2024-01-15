@@ -276,6 +276,7 @@ class HouseholdsController extends Controller
             'birthdate' => $member->birthdate,
             'sex' => $member->sex,
             'voter_status' => $member->sex,
+            'occupation' => $member->occupation,
             'identified_as' => '',
             'contact_num' => '',
             'pwd_status' => $member->pwd_status,

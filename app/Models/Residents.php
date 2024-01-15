@@ -23,4 +23,14 @@ class Residents extends Model
     {
         return $this->hasMany(CerticationRequest::class, 'id', 'resident_id');
     }
+
+    public function fullInfoAsHead()
+    {
+        return $this->hasOne(HouseholdHead::class, 'id', 'resident_id');
+    }
+
+    public function fullInfoAsMember()
+    {
+        return $this->hasOne(HouseholdHeadMember::class, 'id', 'resident_id');
+    }
 }

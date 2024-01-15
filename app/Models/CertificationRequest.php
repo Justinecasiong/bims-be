@@ -17,4 +17,14 @@ class CertificationRequest extends Model
     {
         return $this->belongsTo(Residents::class, 'resident_id', 'id');
     }
+
+    public function fullInfoAsHead()
+    {
+        return $this->belongsTo(HouseholdHead::class, 'resident_id', 'resident_id');
+    }
+
+    public function fullInfoAsMember()
+    {
+        return $this->belongsTo(HouseholdHeadMember::class, 'resident_id', 'resident_id');
+    }
 }

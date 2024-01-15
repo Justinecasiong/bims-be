@@ -19,7 +19,9 @@ class CertificationRequestController extends Controller
                 $query->where('status', $request->status);
             }
         })->with("certification")
-            ->with("resident")->paginate(10);
+            ->with(['fullInfoAsHead', 'fullInfoAsMember', "resident" => function ($query)  {
+                $query->with(['fullInfoAsHead', 'fullInfoAsMember']);
+            }])->paginate(10);
         return response()->json($certification_request, 200);
     }
 
